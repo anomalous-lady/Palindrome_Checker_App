@@ -1,53 +1,57 @@
-public class Palindrome {
+public class Palindrome{
 
-    // Recursive method to check palindrome
-    static boolean checkPalindrome(String s, int left, int right) {
+    // Step 1: Normalize the string
+    static String normalize(String s) {
+        String lower    = s.toLowerCase();               // convert to lowercase
+        String cleaned  = lower.replaceAll("[^a-z0-9]", ""); // remove non-alphanumeric
+        return cleaned;
+    }
 
-        // Base Condition 1: Single char or empty - always palindrome
-        if (left >= right) {
-            System.out.println("  Base condition reached → left(" + left +
-                    ") >= right(" + right + ") → return true");
-            return true;
+    // Step 2: Two-pointer palindrome check
+    static boolean checkPalindrome(String s) {
+        int left  = 0;
+        int right = s.length() - 1;
+
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) {
+                return false;
+            }
+            left++;
+            right--;
         }
-
-        // Compare current outer characters
-        System.out.println("  Comparing s[" + left + "]=" + s.charAt(left) +
-                " with s[" + right + "]=" + s.charAt(right));
-
-        // Mismatch found - not a palindrome
-        if (s.charAt(left) != s.charAt(right)) {
-            System.out.println("  Mismatch! → return false");
-            return false;
-        }
-
-        // Recursive call: move inward
-        System.out.println("  Match ✅ → recurse inward");
-        return checkPalindrome(s, left + 1, right - 1);
+        return true;
     }
 
     public static void main(String[] args) {
-        String original = "madam";
 
-        System.out.println("Checking: \"" + original + "\"");
-        System.out.println("String indices:");
+        // Test cases
+        String[] testCases = {
+                "madam",
+                "Madam",
+                "A man a plan a canal Panama",
+                "Race a car",
+                "Was it a car or a cat I saw",
+                "Hello World"
+        };
 
-        // Print indexed string
-        for (int i = 0; i < original.length(); i++) {
-            System.out.print("  [" + i + "]=" + original.charAt(i));
-        }
+        System.out.println("=========================================");
+        System.out.println("  Case-Insensitive Palindrome Checker");
+        System.out.println("=========================================");
 
-        System.out.println();
-        System.out.println("-------------------------------------");
-        System.out.println("Recursive Call Trace:");
-        System.out.println("-------------------------------------");
+        for (String original : testCases) {
 
-        boolean result = checkPalindrome(original, 0, original.length() - 1);
+            String normalized = normalize(original);
 
-        System.out.println("-------------------------------------");
-        if (result) {
-            System.out.println("\"" + original + "\" is a Palindrome");
-        } else {
-            System.out.println("\"" + original + "\" is not a Palindrome");
+            System.out.println("\nOriginal   : \"" + original   + "\"");
+            System.out.println("Normalized : \"" + normalized  + "\"");
+
+            boolean result = checkPalindrome(normalized);
+
+            System.out.println("Result     :  "  +
+                    (result
+                            ? "✅ Palindrome"
+                            : "❌ Not a Palindrome"));
+            System.out.println("-----------------------------------------");
         }
     }
 }
