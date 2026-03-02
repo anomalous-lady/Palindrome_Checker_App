@@ -1,19 +1,31 @@
-public class Palindrome{
+// ─────────────────────────────────────────
+//  PalindromeChecker.java  – Reusable Class
+// ─────────────────────────────────────────
+class PalindromeChecker {
 
-    // Step 1: Normalize the string
-    static String normalize(String s) {
-        String lower    = s.toLowerCase();               // convert to lowercase
-        String cleaned  = lower.replaceAll("[^a-z0-9]", ""); // remove non-alphanumeric
-        return cleaned;
+    private String original;     // encapsulated field
+    private String normalized;   // encapsulated field
+
+    // ── Constructor ──────────────────────
+    public PalindromeChecker(String input) {
+        this.original   = input;
+        this.normalized = normalize(input);
     }
 
-    // Step 2: Two-pointer palindrome check
-    static boolean checkPalindrome(String s) {
-        int left  = 0;
-        int right = s.length() - 1;
+    // ── Private helper: normalize ────────
+    private String normalize(String s) {
+        return s.toLowerCase()
+                .replaceAll("[^a-z0-9]", "");
+    }
+
+    // ── Private helper: two-pointer ──────
+    private boolean twoPointerCheck(String s) {
+        char[] chars = s.toCharArray();
+        int left     = 0;
+        int right    = chars.length - 1;
 
         while (left < right) {
-            if (s.charAt(left) != s.charAt(right)) {
+            if (chars[left] != chars[right]) {
                 return false;
             }
             left++;
@@ -22,36 +34,58 @@ public class Palindrome{
         return true;
     }
 
+    // ── Public API: checkPalindrome ──────
+    public boolean checkPalindrome() {
+        return twoPointerCheck(normalized);
+    }
+
+    // ── Public API: getOriginal ──────────
+    public String getOriginal() {
+        return original;
+    }
+
+    // ── Public API: getNormalized ────────
+    public String getNormalized() {
+        return normalized;
+    }
+
+    // ── Public API: printResult ──────────
+    public void printResult() {
+        System.out.println("Original   : \"" + original   + "\"");
+        System.out.println("Normalized : \"" + normalized + "\"");
+        System.out.println("Result     :  "  +
+                (checkPalindrome()
+                        ? "✅ Palindrome"
+                        : "❌ Not a Palindrome"));
+        System.out.println("-----------------------------------------");
+    }
+}
+
+
+// ─────────────────────────────────────────
+//  Main.java  – Driver Class
+// ─────────────────────────────────────────
+public class Palindrome {
+
     public static void main(String[] args) {
 
-        // Test cases
         String[] testCases = {
                 "madam",
                 "Madam",
                 "A man a plan a canal Panama",
                 "Race a car",
                 "Was it a car or a cat I saw",
+                "No lemon no melon",
                 "Hello World"
         };
 
         System.out.println("=========================================");
-        System.out.println("  Case-Insensitive Palindrome Checker");
-        System.out.println("=========================================");
+        System.out.println("   OOP-Based Palindrome Checker");
+        System.out.println("=========================================\n");
 
-        for (String original : testCases) {
-
-            String normalized = normalize(original);
-
-            System.out.println("\nOriginal   : \"" + original   + "\"");
-            System.out.println("Normalized : \"" + normalized  + "\"");
-
-            boolean result = checkPalindrome(normalized);
-
-            System.out.println("Result     :  "  +
-                    (result
-                            ? "✅ Palindrome"
-                            : "❌ Not a Palindrome"));
-            System.out.println("-----------------------------------------");
+        for (String input : testCases) {
+            PalindromeChecker checker = new PalindromeChecker(input);
+            checker.printResult();
         }
     }
 }
