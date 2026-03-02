@@ -1,42 +1,39 @@
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class Palindrome {
     public static void main(String[] args) {
         String original = "madam";
 
-        // Data Structures
-        Queue<Character> queue = new LinkedList<>();
-        Stack<Character> stack = new Stack<>();
+        // Step 1: Insert all characters into Deque
+        Deque<Character> deque = new ArrayDeque<>();
 
-        // Step 1: Enqueue and Push all characters
         for (int i = 0; i < original.length(); i++) {
-            queue.add(original.charAt(i));    // FIFO
-            stack.push(original.charAt(i));   // LIFO
+            deque.addLast(original.charAt(i));  // insert at rear
         }
 
-        // Step 2: Compare dequeue vs pop
+        // Step 2: Compare front and rear until empty
         boolean isPalindrome = true;
 
-        System.out.println("Comparing Queue (FIFO) vs Stack (LIFO):");
-        System.out.println("----------------------------------------");
+        System.out.println("Comparing Front vs Rear in Deque:");
+        System.out.println("----------------------------------");
 
-        while (!queue.isEmpty() && !stack.isEmpty()) {
-            char fromQueue = queue.poll();   // removes from front
-            char fromStack = stack.pop();    // removes from top
+        while (deque.size() > 1) {
+            char front = deque.removeFirst();  // remove from front
+            char rear  = deque.removeLast();   // remove from rear
 
-            System.out.println("Queue(front): " + fromQueue +
-                    "  |  Stack(top): " + fromStack +
-                    "  |  Match: " + (fromQueue == fromStack));
+            System.out.println("Front: " + front +
+                    "  |  Rear: " + rear  +
+                    "  |  Match: " + (front == rear));
 
-            if (fromQueue != fromStack) {
+            if (front != rear) {
                 isPalindrome = false;
+                break;
             }
         }
 
         // Step 3: Display result
-        System.out.println("----------------------------------------");
+        System.out.println("----------------------------------");
         if (isPalindrome) {
             System.out.println("\"" + original + "\" is a Palindrome");
         } else {
