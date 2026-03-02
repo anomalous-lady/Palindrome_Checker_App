@@ -1,63 +1,152 @@
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Stack;
+
 // ─────────────────────────────────────────
-//  PalindromeChecker.java  – Reusable Class
+//  PalindromeStrategy.java  – Interface
 // ─────────────────────────────────────────
-class PalindromeChecker {
+interface PalindromeStrategy {
+    boolean check(String input);
+    String strategyName();
+}
 
-    private String original;     // encapsulated field
-    private String normalized;   // encapsulated field
 
-    // ── Constructor ──────────────────────
-    public PalindromeChecker(String input) {
-        this.original   = input;
-        this.normalized = normalize(input);
-    }
+// ─────────────────────────────────────────
+//  TwoPointerStrategy.java
+// ─────────────────────────────────────────
+class TwoPointerStrategy implements PalindromeStrategy {
 
-    // ── Private helper: normalize ────────
-    private String normalize(String s) {
-        return s.toLowerCase()
-                .replaceAll("[^a-z0-9]", "");
-    }
-
-    // ── Private helper: two-pointer ──────
-    private boolean twoPointerCheck(String s) {
-        char[] chars = s.toCharArray();
+    @Override
+    public boolean check(String input) {
+        char[] chars = input.toCharArray();
         int left     = 0;
         int right    = chars.length - 1;
 
         while (left < right) {
-            if (chars[left] != chars[right]) {
-                return false;
-            }
+            if (chars[left] != chars[right]) return false;
             left++;
             right--;
         }
         return true;
     }
 
-    // ── Public API: checkPalindrome ──────
-    public boolean checkPalindrome() {
-        return twoPointerCheck(normalized);
+    @Override
+    public String strategyName() {
+        return "Two Pointer (char[])";
+    }
+}
+
+
+// ─────────────────────────────────────────
+//  StackStrategy.java
+// ─────────────────────────────────────────
+class StackStrategy implements PalindromeStrategy {
+
+    @Override
+    public boolean check(String input) {
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : input.toCharArray()) {
+            stack.push(c);
+        }
+
+        for (char c : input.toCharArray()) {
+            if (c != stack.pop()) return false;
+        }
+        return true;
     }
 
-    // ── Public API: getOriginal ──────────
-    public String getOriginal() {
-        return original;
+    @Override
+    public String strategyName() {
+        return "Stack (LIFO)";
+    }
+}
+
+
+// ─────────────────────────────────────────
+//  DequeStrategy.java
+// ─────────────────────────────────────────
+class DequeStrategy implements PalindromeStrategy {
+
+    @Override
+    public boolean check(String input) {
+        Deque<Character> deque = new ArrayDeque<>();
+
+        for (char c : input.toCharArray()) {
+            deque.addLast(c);
+        }
+
+        while (deque.size() > 1) {
+            if (deque.removeFirst() != deque.removeLast()) return false;
+        }
+        return true;
     }
 
-    // ── Public API: getNormalized ────────
-    public String getNormalized() {
-        return normalized;
+    @Override
+    public String strategyName() {
+        return "Deque (Front vs Rear)";
+    }
+}
+
+
+// ─────────────────────────────────────────
+//  RecursionStrategy.java
+// ─────────────────────────────────────────
+class RecursionStrategy implements PalindromeStrategy {
+
+    private boolean recurse(char[] chars, int left, int right) {
+        if (left >= right)                    return true;
+        if (chars[left] != chars[right])      return false;
+        return recurse(chars, left + 1, right - 1);
     }
 
-    // ── Public API: printResult ──────────
-    public void printResult() {
-        System.out.println("Original   : \"" + original   + "\"");
-        System.out.println("Normalized : \"" + normalized + "\"");
-        System.out.println("Result     :  "  +
-                (checkPalindrome()
-                        ? "✅ Palindrome"
-                        : "❌ Not a Palindrome"));
-        System.out.println("-----------------------------------------");
+    @Override
+    public boolean check(String input) {
+        char[] chars = input.toCharArray();
+        return recurse(chars, 0, chars.length - 1);
+    }
+
+    @Override
+    public String strategyName() {
+        return "Recursion (Call Stack)";
+    }
+}
+
+
+// ─────────────────────────────────────────
+//  PalindromeChecker.java  – Context Class
+// ─────────────────────────────────────────
+class PalindromeContext {
+
+    private PalindromeStrategy strategy;    // injected strategy
+
+    // ── Constructor injection ────────────
+    public PalindromeContext(PalindromeStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    // ── Runtime strategy swap ────────────
+    public void setStrategy(PalindromeStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    // ── Normalize input ──────────────────
+    private String normalize(String s) {
+        return s.toLowerCase()
+                .replaceAll("[^a-z0-9]", "");
+    }
+
+    // ── Execute current strategy ─────────
+    public void execute(String input) {
+        String normalized = normalize(input);
+        boolean result    = strategy.check(normalized);
+
+        System.out.println("  Strategy   : " + strategy.strategyName());
+        System.out.println("  Original   : \"" + input       + "\"");
+        System.out.println("  Normalized : \"" + normalized  + "\"");
+        System.out.println("  Result     :  " +
+                (result ? "✅ Palindrome" : "❌ Not a Palindrome"));
+        System.out.println("  -----------------------------------------");
     }
 }
 
@@ -69,23 +158,51 @@ public class Palindrome {
 
     public static void main(String[] args) {
 
-        String[] testCases = {
-                "madam",
-                "Madam",
-                "A man a plan a canal Panama",
-                "Race a car",
-                "Was it a car or a cat I saw",
-                "No lemon no melon",
-                "Hello World"
+        System.out.println("=========================================");
+        System.out.println("   Strategy Pattern Palindrome Checker");
+        System.out.println("=========================================");
+
+        // ── All available strategies ─────
+        PalindromeStrategy[] strategies = {
+                new TwoPointerStrategy(),
+                new StackStrategy(),
+                new DequeStrategy(),
+                new RecursionStrategy()
         };
 
-        System.out.println("=========================================");
-        System.out.println("   OOP-Based Palindrome Checker");
+        // ── Test inputs ──────────────────
+        String[] testCases = {
+                "madam",
+                "A man a plan a canal Panama",
+                "Race a car"
+        };
+
+        // ── Run each test on all strategies
+        for (String input : testCases) {
+            System.out.println("\n┌────────────────────────────────────────");
+            System.out.println("│ Input: \"" + input + "\"");
+            System.out.println("└────────────────────────────────────────");
+
+            PalindromeContext context = new PalindromeContext(strategies[0]);
+
+            for (PalindromeStrategy strategy : strategies) {
+                context.setStrategy(strategy);   // swap at runtime
+                context.execute(input);
+            }
+        }
+
+        // ── Runtime strategy injection demo
+        System.out.println("\n=========================================");
+        System.out.println("   Runtime Strategy Injection Demo");
         System.out.println("=========================================\n");
 
-        for (String input : testCases) {
-            PalindromeChecker checker = new PalindromeChecker(input);
-            checker.printResult();
-        }
+        PalindromeContext dynamic = new PalindromeContext(new StackStrategy());
+        dynamic.execute("Was it a car or a cat I saw");
+
+        dynamic.setStrategy(new DequeStrategy());       // swap strategy
+        dynamic.execute("Was it a car or a cat I saw");
+
+        dynamic.setStrategy(new TwoPointerStrategy());  // swap again
+        dynamic.execute("Was it a car or a cat I saw");
     }
 }
