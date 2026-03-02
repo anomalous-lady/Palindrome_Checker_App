@@ -1,12 +1,24 @@
-/*HI this is a project for checking Palindrome
- */public class Palindrome {
-    public static void main(String[] args){
-        System.out.println("Welcome to the Palindrome Checker Management System");
-        System.out.println("Version: 1.0");
-        System.out.println("System Initialization Succesful");
+package src;
+
+
+ public class Palindrome {
+    public static void main(String[] args) {
+        String original = "madam";
+        String reversed = "";
+
+        // Loop to reverse the string
+        for (int i = original.length() - 1; i >= 0; i--) {
+            reversed = reversed + original.charAt(i);
+        }
+
+        // Compare original and reversed
+        if (original.equals(reversed)) {
+            System.out.println("\"" + original + "\" is a Palindrome");
+        } else {
+            System.out.println("\"" + original + "\" is not a Palindrome");
+        }
     }
 }
-
 
 
 
